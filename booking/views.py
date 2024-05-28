@@ -235,13 +235,22 @@ def get_seat(request, movie_id):
 def seat(request, movie_id):
     if request.method == "POST":
         data = json.loads(request.body)
-        data_list = data.get("data")
+        data_seat_list = data.get("data")
         movie = get_object_or_404(Movie, pk=movie_id)
         room = get_object_or_404(Room, pk=movie.room_id)
 
-        for data in data_list:
+        for seat_data in data_seat_list:
+
+            if not isinstance(seat_data['row'], int) or not isinstance(seat_data['column'], int):
+                return JsonResponse({"error": "Row and column must be integers"}, status=400)
+
+            if seat_data['row'] > 10:
+                return JsonResponse({"error": "Row must not be larger than 10"}, status=406)
+            if seat_data['column'] > 8:
+                return JsonResponse({"error": "Column must not be larger than 8"}, status=406)
+
             seat = Seat.objects.filter(
-                row=data["row"], movie=movie, column=data["column"]).first()
+                row=seat_data['row'], movie=movie, column=seat_data['column']).first()
             if seat:
                 if seat.is_booked:
                     return JsonResponse({"err": "Seat is already booked"}, status=400)
@@ -251,7 +260,7 @@ def seat(request, movie_id):
 
             else:
                 new_seat = Seat.objects.create(
-                    room=room, movie=movie, column=data["column"], row=data["row"], is_booked=True)
+                    room=room, movie=movie, column=seat_data['column'], row=seat_data['row'], is_booked=True)
 
         seats = Seat.objects.filter(movie=movie).values(
             "id", "row", "column", "movie_id", "is_booked")

@@ -1,6 +1,6 @@
 from django.db import models
 
-from datetime import timedelta
+from django.core.exceptions import ValidationError
 
 
 class Room(models.Model):
@@ -45,3 +45,12 @@ class Seat(models.Model):
 
     def __str__(self):
         return f"Row {self.row}, Seat {self.column}"
+
+    def clean(self):
+
+        if not isinstance(self.column, int) or not isinstance(self.row, int):
+            raise ValidationError("Row and column must be integers.")
+        if self.row > 10:
+            raise ValidationError("Row must not be larger than 10.")
+        if self.column > 9:
+            raise ValidationError("Column must not be larger than 9.")

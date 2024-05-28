@@ -22,6 +22,6 @@ def delete_all_images_room(room_id):
     for file_path in files_to_delete:
         try:
             remove(file_path)
-            print(f"Deleted: {file_path}")
+
         except OSError as e:
             print(f"Error deleting {file_path}: Something wrong")
