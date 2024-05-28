@@ -44,4 +44,4 @@ class Seat(models.Model):
         verbose_name_plural = 'Seats'
 
     def __str__(self):
-        return f"Row {self.row}, Seat {self.number}"
+        return f"Row {self.row}, Seat {self.column}"
