@@ -13,8 +13,8 @@ from datetime import datetime
 def rooms(request):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            name = data.get("name")
+            data_room = json.loads(request.body)
+            name = data_room.get("name")
             if not name:
                 return JsonResponse({"error": "Room name is required"}, status=400)
             Room.objects.create(name=name)
@@ -63,8 +63,8 @@ def room(request, room_id):
     elif request.method == "PUT":
         try:
             room = get_object_or_404(Room, pk=room_id)
-            data = json.loads(request.body)
-            name = data.get("name")
+            data_room = json.loads(request.body)
+            name = data_room.get("name")
 
             if not name:
                 return JsonResponse({"error": "Name field is required"}, status=400)
@@ -87,14 +87,14 @@ def room(request, room_id):
 def movie(request, room_id):
     if request.method == "POST":
         try:
-            data = json.loads(request.body)
-            image = data.get("image")
-            title = data.get("title")
+            data_movie = json.loads(request.body)
+            image = data_movie.get("image")
+            title = data_movie.get("title")
             image_binary_data = base64.b64decode(image)
             image_content = ContentFile(
                 image_binary_data, name=f'{room_id}.png')
 
-            start_time_str = data.get("start_time")
+            start_time_str = data_movie.get("start_time")
             start_month = datetime.fromisoformat(start_time_str).month
             start_time = datetime.fromisoformat(start_time_str).time()
             start_time_day = datetime.fromisoformat(start_time_str).day
@@ -137,11 +137,11 @@ def movie(request, room_id):
 
     elif request.method == "DELETE":
         try:
-            data = json.loads(request.body)
+            data_movie = json.loads(request.body)
             room = Room.objects.filter(id=room_id).first()
-            image_url = data.get("url_image")
+            image_url = data_movie.get("url_image")
             if room:
-                movie_id = data.get("movieId")
+                movie_id = data_movie.get("movieId")
                 movie_candidate = Movie.objects.filter(
                     id=movie_id, room=room).first()
 
@@ -165,13 +165,13 @@ def movie(request, room_id):
             return JsonResponse({"error": f"An error occurred:'Something wrong'"}, status=500)
     elif request.method == "PUT":
         try:
-            data = json.loads(request.body)
+            data_movie = json.loads(request.body)
             room_exists = Room.objects.filter(id=room_id).exists()
 
             if room_exists:
-                new_title = data.get("title")
-                image = data.get("image")
-                movie_id = data.get("movieId")
+                new_title = data_movie.get("title")
+                image = data_movie.get("image")
+                movie_id = data_movie.get("movieId")
 
                 try:
                     movie_candidate = Movie.objects.get(pk=movie_id)
@@ -234,8 +234,8 @@ def get_seat(request, movie_id):
 @csrf_exempt
 def seat(request, movie_id):
     if request.method == "POST":
-        data = json.loads(request.body)
-        data_seat_list = data.get("data")
+        data_list = json.loads(request.body)
+        data_seat_list = data_list.get("data")
         movie = get_object_or_404(Movie, pk=movie_id)
         room = get_object_or_404(Room, pk=movie.room_id)
 
